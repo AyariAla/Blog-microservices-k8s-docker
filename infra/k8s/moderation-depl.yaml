@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: moderation-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: moderation
+  template:
+    metadata:
+      labels:
+        app: moderation
+    spec:
+      containers:
+        - name: moderation
+          image: alaay/moderation:latest
+---
+#cluster ip configuration
+apiVersion: v1
+kind: Service
+metadata:
+  name: moderation-clusterip-srv
+spec:
+  #if you omit type k8 will automatically assume its a cluster IP
+  type: ClusterIP
+  selector:
+    # select pods of type app: moderation like in depl.yml labels: app: posts
+    app: moderation
+  ports:
+    - name: moderation
+      protocol: TCP
+      port: 4003
+      targetPort: 4003

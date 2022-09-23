@@ -1,0 +1,45 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-srv
+  annotations:
+    #tells the ingress controller we are going to feed it routing rules
+    kubernetes.io/ingress.class: nginx
+    #this will allow us to use REGEX in path expressions
+    nginx.ingress.kubernetes.io/use-regex: 'true'
+spec:
+  rules:
+    - host: posts.com
+      http:
+        paths:
+          #route incoming requests with /posts to posts clusteripsrv on port 4000
+          - path: /posts/create
+            pathType: Prefix
+            backend:
+              service:
+                name: posts-clusterip-srv
+                port:
+                  number: 4000
+          - path: /posts
+            pathType: Prefix
+            backend:
+              service:
+                name: query-clusterip-srv
+                port:
+                  number: 4002
+                  #Ingress doesn't understand posts/:id/comments so we use a REGEX ?(.*)
+          - path: /posts/?(.*)/comments
+            pathType: Prefix
+            backend:
+              service:
+                name: comments-srv
+                port:
+                  number: 4001
+                  #react app routing, the REGEX to match any path it might need and write this at the bottom
+          - path: /?(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: client-clusterip-srv
+                port:
+                  number: 3000

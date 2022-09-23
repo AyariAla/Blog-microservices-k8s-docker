@@ -1,0 +1,15 @@
+#setting a nodePort service will allow us to access the pod from outside making it the entry point of our app
+apiVersion: v1
+kind: Service
+metadata:
+  name: posts-srv
+spec:
+  type: NodePort
+  selector:
+    # select pods of type app: posts like in depl.yml labels: app: posts
+    app: posts
+  ports:
+    - name: posts
+      protocol: TCP
+      port: 4000
+      targetPort: 4000
